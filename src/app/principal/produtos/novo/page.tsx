@@ -60,11 +60,11 @@ function NovoProduto() {
 
     const novoProduto: Inputs = {
       modelo: data.modelo,
-      marcaId: Number(data.marcaId),
-      ano: Number(data.ano),
+      marcaId: data.marcaId,        // Já é number
+      ano: data.ano,                // Já é number
       acessorios: data.acessorios,
       foto: data.foto,
-      preco: Number(data.preco),
+      preco: data.preco,            // Já é number
     }
 
     try {
