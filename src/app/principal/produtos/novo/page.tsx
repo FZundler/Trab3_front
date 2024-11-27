@@ -15,6 +15,10 @@ type Inputs = {
   acessorios: string
 }
 
+type ErrorData = {
+  message?: string
+}
+
 function NovoProduto() {
   const [marcas, setMarcas] = useState<MarcaI[]>([])
   const {
@@ -33,15 +37,14 @@ function NovoProduto() {
     getMarcas()
 
     setTimeout(() => {
-      setFocus("modelo") // Manter o foco no campo 'modelo'
+      setFocus("modelo")
     }, 0)
-  }, []) // Dependências vazias garantem que o efeito só seja executado uma vez
+  }, [])
 
   const optionsMarca = marcas.map(marca => (
     <option key={marca.id} value={marca.id}>{marca.nome}</option>
   ))
 
-  // Função para validar se a URL é válida
   const isValidUrl = (url: string) => {
     try {
       new URL(url)
@@ -52,7 +55,6 @@ function NovoProduto() {
   }
 
   async function incluirProduto(data: Inputs) {
-    // Validação da URL da foto
     if (!data.foto || !isValidUrl(data.foto)) {
       toast.error("A URL da foto não é válida.")
       return
@@ -60,11 +62,11 @@ function NovoProduto() {
 
     const novoProduto: Inputs = {
       modelo: data.modelo,
-      marcaId: data.marcaId,        // Já é number
-      ano: data.ano,                // Já é number
+      marcaId: data.marcaId,
+      ano: data.ano,
       acessorios: data.acessorios,
       foto: data.foto,
-      preco: data.preco,            // Já é number
+      preco: data.preco,
     }
 
     try {
@@ -83,7 +85,7 @@ function NovoProduto() {
       } else {
         console.error("Erro ao cadastrar o produto. Status:", response.status)
 
-        let errorData = {}
+        let errorData: ErrorData = {}
         try {
           errorData = await response.json()
         } catch (err) {
@@ -129,7 +131,7 @@ function NovoProduto() {
                focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-500
                dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500
                dark:focus:border-blue-500" required
-              {...register("marcaId", { valueAsNumber: true })} // Garantir que o valor seja numérico
+              {...register("marcaId", { valueAsNumber: true })}
             >
               {optionsMarca}
             </select>
