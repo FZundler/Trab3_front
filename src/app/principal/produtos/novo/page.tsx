@@ -1,207 +1,151 @@
-'use client'
+"use client";
 
-import { useForm } from "react-hook-form"
-import Cookies from "js-cookie"
-import { toast } from "sonner"
-import { useState, useEffect } from "react"
-import { MarcaI } from "@/utils/types/marcas"
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-type Inputs = {
-  modelo: string
-  marcaId: number
-  ano: number
-  preco: number
-  foto: string
-  acessorios: string
+interface Inputs {
+  modelo: string;
+  marcaId: string; // Mantemos como string porque é o tipo original esperado no formulário
+  ano: string;
+  acessorios: string;
+  foto: string;
+  preco: string;
 }
 
-type ErrorData = {
-  message?: string
-}
-
-function NovoProduto() {
-  const [marcas, setMarcas] = useState<MarcaI[]>([])
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setFocus
-  } = useForm<Inputs>()
+export default function NovoProdutoPage() {
+  const { register, handleSubmit, reset } = useForm<Inputs>();
+  const [marcas, setMarcas] = useState<{ id: number; nome: string }[]>([]);
 
   useEffect(() => {
-    async function getMarcas() {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_URL_API}/marcas`)
-      const dados = await response.json()
-      setMarcas(dados)
-    }
-    getMarcas()
+    // Buscar as marcas da API
+    async function fetchMarcas() {
+      try {
+        const response = await fetch("/api/marcas");
+        if (!response.ok) throw new Error("Erro ao buscar marcas");
 
-    setTimeout(() => {
-      setFocus("modelo")
-    }, 0)
-  }, [])
-
-  const optionsMarca = marcas.map(marca => (
-    <option key={marca.id} value={marca.id}>{marca.nome}</option>
-  ))
-
-  const isValidUrl = (url: string) => {
-    try {
-      new URL(url)
-      return true
-    } catch {
-      return false
-    }
-  }
-
-  async function incluirProduto(data: Inputs) {
-    if (!data.foto || !isValidUrl(data.foto)) {
-      toast.error("A URL da foto não é válida.")
-      return
+        const data = await response.json();
+        setMarcas(data);
+      } catch (error) {
+        console.error("Erro ao buscar marcas:", error);
+        toast.error("Erro ao buscar marcas. Tente novamente mais tarde.");
+      }
     }
 
-    const novoProduto: Inputs = {
+    fetchMarcas();
+  }, []);
+
+  const onSubmit = async (data: Inputs) => {
+    const novoProduto = {
       modelo: data.modelo,
-      marcaId: data.marcaId,
-      ano: data.ano,
+      marcaId: Number(data.marcaId), // Convertendo para número ao enviar
+      ano: Number(data.ano), // Convertendo para número ao enviar
       acessorios: data.acessorios,
       foto: data.foto,
-      preco: data.preco,
-    }
+      preco: Number(data.preco), // Convertendo para número ao enviar
+    };
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_URL_API}/produtos`, {
+      const response = await fetch("/api/produtos", {
         method: "POST",
         headers: {
-          "Content-type": "application/json",
-          Authorization: "Bearer " + Cookies.get("admin_logado_token") as string
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(novoProduto)
-      })
+        body: JSON.stringify(novoProduto),
+      });
 
-      if (response.ok) {
-        toast.success("Produto cadastrado com sucesso")
-        reset()
-      } else {
-        console.error("Erro ao cadastrar o produto. Status:", response.status)
+      if (!response.ok) {
+        const errorData = (await response.json()) as { message?: string }; // Tipo opcional para evitar erros
+        console.error("Erro detalhado:", errorData);
 
-        let errorData: ErrorData = {}
-        try {
-          errorData = await response.json()
-        } catch (err) {
-          console.error("Erro ao tentar ler o corpo da resposta:", err)
-        }
-
-        console.error("Erro detalhado:", errorData)
-        toast.error(errorData.message || `Erro ao cadastrar o produto. Status: ${response.status}`)
+        toast.error(
+          errorData.message ||
+            `Erro ao cadastrar o produto. Status: ${response.status}`
+        );
+        return;
       }
+
+      toast.success("Produto cadastrado com sucesso!");
+      reset(); // Resetar o formulário após sucesso
     } catch (error) {
-      console.error("Erro de rede ou de requisição:", error)
-      toast.error("Erro de rede ou de requisição. Tente novamente.")
+      console.error("Erro de rede ou de requisição:", error);
+      toast.error("Erro de conexão. Tente novamente.");
     }
-  }
+  };
 
   return (
-    <>
-      <h1 className="mb-10 ml-96 mt-36 font-bold tracking-tight text-gray-900 lg:text-3xl dark:text-white">
-        Inclusão de Produtos
-      </h1>
-
-      <form className="max-w-xl mx-96" onSubmit={handleSubmit(incluirProduto)}>
-        <div className="mb-4">
-          <label htmlFor="modelo" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Modelo do Produto
-          </label>
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Cadastrar Novo Produto</h1>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium">Modelo</label>
           <input
-            type="text" id="modelo"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-             focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-500 dark:border-gray-600
-             dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required
-            {...register("modelo")}
+            type="text"
+            {...register("modelo", { required: true })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
         </div>
-        <div className="grid gap-6 mb-3 md:grid-cols-2">
-          <div className="mb-3">
-            <label htmlFor="marcaId" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-              Marca
-            </label>
-            <select
-              id="marcaId"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-               focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-500
-               dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500
-               dark:focus:border-blue-500" required
-              {...register("marcaId", { valueAsNumber: true })}
-            >
-              {optionsMarca}
-            </select>
-          </div>
-          <div className="mb-3">
-            <label htmlFor="ano" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-              Ano
-            </label>
-            <input
-              type="number" id="ano"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-             focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required
-              {...register("ano")}
-            />
-          </div>
+
+        <div>
+          <label className="block text-sm font-medium">Marca</label>
+          <select
+            {...register("marcaId", { required: true })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          >
+            <option value="">Selecione uma marca</option>
+            {marcas.map((marca) => (
+              <option key={marca.id} value={marca.id}>
+                {marca.nome}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="grid gap-6 mb-3 md:grid-cols-2">
-          <div className="mb-3">
-            <label htmlFor="preco" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-              Preço R$
-            </label>
-            <input
-              type="number" id="preco"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-               focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
-               dark:bg-gray-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required
-              {...register("preco")}
-            />
-          </div>
+
+        <div>
+          <label className="block text-sm font-medium">Ano</label>
+          <input
+            type="number"
+            {...register("ano", { required: true })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
         </div>
-        <div className="grid gap-6 mb-3 md:grid-cols-2">
-          <div className="mb-3">
-            <label htmlFor="foto" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-              URL da Foto
-            </label>
-            <input
-              type="text" id="foto"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-               focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
-               dark:bg-gray-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white
-               dark:focus:ring-blue-500 dark:focus:border-blue-500" required
-              {...register("foto")}
-            />
-          </div>
+
+        <div>
+          <label className="block text-sm font-medium">Acessórios</label>
+          <input
+            type="text"
+            {...register("acessorios", { required: true })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
         </div>
-        <div className="mb-3">
-          <label htmlFor="acessorios" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Acessórios
-          </label>
-          <textarea
-            id="acessorios" rows={4}
-            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border
-             border-gray-300 focus:ring-blue-500 focus:border-blue-500
-             dark:bg-gray-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white
-             dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            {...register("acessorios")}
-          ></textarea>
+
+        <div>
+          <label className="block text-sm font-medium">Foto (URL)</label>
+          <input
+            type="text"
+            {...register("foto", { required: true })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Preço</label>
+          <input
+            type="number"
+            step="0.01"
+            {...register("preco", { required: true })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
         </div>
 
         <button
           type="submit"
-          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 
-        focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5
-         py-2.5 text-center dark:bg-blue-900 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
         >
-          Incluir
+          Cadastrar
         </button>
       </form>
-    </>
-  )
+    </div>
+  );
 }
-
-export default NovoProduto
