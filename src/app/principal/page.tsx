@@ -103,7 +103,7 @@ export default function Principal() {
         </div>
       </div>
 
-      <h2 className="text-2xl font-bold mt-4">Gráfico: Nº de Produtos por Marca</h2>
+      <h2 className="text-2xl font-bold mt-4 bg-transparent">Gráfico: Nº de Produtos por Marca</h2>
       <Chart chartType="ColumnChart" width="95%" height="380px" data={data} options={options} />
     </div>
   );
