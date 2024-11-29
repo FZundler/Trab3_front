@@ -1,8 +1,8 @@
-'use client'
+'use client'; // Isso indica que o componente é do tipo Client Component
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { PropostaI } from '@/utils/types/propostas';
-import Image from 'next/image';  // Importação do componente Image
+import Image from 'next/image'; // Certifique-se de usar Image ao invés de img
 
 const formatDate = (data: string | null) => {
   if (!data) {
@@ -24,9 +24,6 @@ const Propostas = () => {
   const [produtoId, setProdutoId] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Ref para a área de propostas
-  const propostasRef = useRef<HTMLDivElement | null>(null);
 
   // Função para buscar as propostas da API
   const fetchPropostas = async () => {
@@ -82,9 +79,6 @@ const Propostas = () => {
       alert('Proposta enviada com sucesso!');
       setPropostas((prevPropostas) => [data, ...prevPropostas]);
 
-      if (propostasRef.current) {
-        propostasRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -180,48 +174,42 @@ const Propostas = () => {
       </div>
 
       <h3 className="text-2xl font-semibold text-white dark:text-dark mb-4">Propostas Enviadas</h3>
-      <div ref={propostasRef} className="overflow-x-auto">
+      <div className="overflow-x-auto">
         <table className="w-full table-auto border-collapse">
           <thead>
             <tr>
               <th className="px-6 py-3 text-left text-xl font-semibold text-white dark:text-dark">Produto</th>
               <th className="px-6 py-3 text-left text-xl font-semibold text-white dark:text-dark">Foto</th>
-              <th className="px-6 py-3 text-left text-xl font-semibold text-white dark:text-dark">Descrição</th>
-              <th className="px-6 py-3 text-left text-xl font-semibold text-white dark:text-dark">Resposta</th>
+              <th className="px-6 py-3 text-left text-xl font-semibold text-white dark:text-dark">Preço</th>
+              <th className="px-6 py-3 text-left text-xl font-semibold text-white dark:text-dark">Data de Resposta</th>
               <th className="px-6 py-3 text-left text-xl font-semibold text-white dark:text-dark">Ações</th>
             </tr>
           </thead>
           <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={5} className="text-center py-4">Carregando...</td>
+            {propostas.map((proposta) => (
+              <tr key={proposta.id}>
+                <td className="px-6 py-3">{proposta.descricao}</td>
+                <td className="px-6 py-3">
+                  <Image
+                    src={proposta.imagem || '/default-image.png'}
+                    alt={proposta.descricao}
+                    width={150}
+                    height={100}
+                    layout="intrinsic"
+                  />
+                </td>
+                <td className="px-6 py-3">{proposta.preco}</td>
+                <td className="px-6 py-3">{formatDate(proposta.resposta)}</td>
+                <td className="px-6 py-3">
+                  <button
+                    onClick={() => deleteProposta(proposta.id)}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700"
+                  >
+                    Excluir
+                  </button>
+                </td>
               </tr>
-            ) : (
-              propostas.map((proposta) => (
-                <tr key={proposta.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
-                  <td className="px-6 py-3">{proposta.produtoId}</td>
-                  <td className="px-6 py-3">
-                    <Image
-                      src={`https://via.placeholder.com/150?text=Imagem+${proposta.produtoId}`}
-                      alt={`Imagem do produto ${proposta.produtoId}`}
-                      width={50}
-                      height={50}
-                      className="rounded-md"
-                    />
-                  </td>
-                  <td className="px-6 py-3">{proposta.descricao}</td>
-                  <td className="px-6 py-3">{formatDate(proposta.resposta)}</td>
-                  <td className="px-6 py-3">
-                    <button
-                      onClick={() => deleteProposta(proposta.id)}
-                      className="text-red-600 hover:text-red-800 transition duration-200"
-                    >
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
+            ))}
           </tbody>
         </table>
       </div>
