@@ -1,5 +1,5 @@
 {
-  "name": "revenda_admin",
+  "name": "music_store_admin",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,8 +10,9 @@
   },
   "dependencies": {
     "@types/js-cookie": "^3.0.6",
+    "axios": "^1.7.8",
     "js-cookie": "^3.0.5",
-    "next": "15.0.1",
+    "next": "^15.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-google-charts": "^5.2.1",
@@ -21,6 +22,7 @@
     "sonner": "^1.5.0"
   },
   "devDependencies": {
+    "@types/axios": "^0.9.36",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
