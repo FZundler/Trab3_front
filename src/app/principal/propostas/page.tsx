@@ -120,7 +120,7 @@ const Propostas = () => {
       <h1 className="mb-8 text-3xl font-extrabold text-gray-100 dark:text-dark">Controle de Propostas</h1>
 
       <div className="bg-gray-500/20 p-6 rounded-lg shadow-lg mb-8">
-        <h2 className="text-2xl font-semibold text-gray-100 dark:text-dark mb-4">Submeter Nova Proposta</h2>
+        <h2 className="text-2xl font-semibold text-gray-100 dark:text-dark mb-4">Faça nova Proposta</h2>
         <form
           onSubmit={(e) => {
             e.preventDefault();
