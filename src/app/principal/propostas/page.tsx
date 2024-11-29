@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { PropostaI } from '@/utils/types/propostas';
-import { useRouter } from 'next/navigation';
+import Image from 'next/image';  // Importação do componente Image
 
 const formatDate = (data: string) => {
   if (!data) {
@@ -18,7 +18,7 @@ const formatDate = (data: string) => {
 
 const Propostas = () => {
   const [propostas, setPropostas] = useState<PropostaI[]>([]);
-  const [clienteId, setClienteId] = useState<string>('1'); // Substitua com o ID correto do cliente
+  const [clienteId] = useState<string>('1'); // Se o clienteId for fixo, pode ser uma constante
   const [preco, setPreco] = useState<number>(0);
   const [descricao, setDescricao] = useState<string>('');
   const [produtoId, setProdutoId] = useState<string>('');
@@ -120,7 +120,7 @@ const Propostas = () => {
       <h1 className="mb-8 text-3xl font-extrabold text-gray-100 dark:text-dark">Controle de Propostas</h1>
 
       <div className="bg-gray-500/20 p-6 rounded-lg shadow-lg mb-8">
-        <h2 className="text-2xl font-semibold text-gray-100 dark:text-dark mb-4">Faça nova Proposta</h2>
+        <h2 className="text-2xl font-semibold text-gray-100 dark:text-dark mb-4">Submeter Nova Proposta</h2>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -196,27 +196,25 @@ const Propostas = () => {
               <tr>
                 <td colSpan={5} className="text-center py-4">Carregando...</td>
               </tr>
-            ) : propostas.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="text-center py-4 text-white">Nenhuma proposta encontrada.</td>
-              </tr>
             ) : (
               propostas.map((proposta) => (
-                <tr key={proposta.id} className="bg-white border-b dark:bg-gray-500/35 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm">
-                  <th className="px-6 py-4 font-medium text-gray-900 dark:text-dark">{proposta.produto.modelo}</th>
-                  <td className="px-6 py-4">
-                    <img
-                      src={proposta.produto.foto}
-                      className="w-20 h-20 object-cover rounded-lg"
-                      alt={`Imagem do produto ${proposta.produto.modelo}`}
+                <tr key={proposta.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
+                  <td className="px-6 py-3">{proposta.produtoId}</td>
+                  <td className="px-6 py-3">
+                    <Image
+                      src={`https://via.placeholder.com/150?text=Imagem+${proposta.produtoId}`}
+                      alt={`Imagem do produto ${proposta.produtoId}`}
+                      width={50}
+                      height={50}
+                      className="rounded-md"
                     />
                   </td>
-                  <td className="px-6 py-4">{proposta.descricao}</td>
-                  <td className="px-6 py-4">{formatDate(proposta.resposta || '')}</td>  {/* Aqui usei 'resposta' ao invés de 'dataResposta' */}
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-3">{proposta.descricao}</td>
+                  <td className="px-6 py-3">{formatDate(proposta.resposta)}</td>
+                  <td className="px-6 py-3">
                     <button
                       onClick={() => deleteProposta(proposta.id)}
-                      className="text-red-600 hover:text-red-800 transition duration-300"
+                      className="text-red-600 hover:text-red-800 transition duration-200"
                     >
                       Excluir
                     </button>
