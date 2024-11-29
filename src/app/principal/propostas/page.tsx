@@ -4,11 +4,11 @@ import { useEffect, useState, useRef } from 'react';
 import { PropostaI } from '@/utils/types/propostas';
 import Image from 'next/image';  // Importação do componente Image
 
-const formatDate = (data: string) => {
+const formatDate = (data: string | null) => {
   if (!data) {
     return 'Data inválida';
   }
-  
+
   const [ano, mes, dia] = data.split('-');
   if (!ano || !mes || !dia) {
     return 'Data inválida';
@@ -92,7 +92,7 @@ const Propostas = () => {
     }
   };
 
-  const deleteProposta = async (id: string) => {
+  const deleteProposta = async (id: number) => {
     const confirm = window.confirm('Tem certeza que deseja excluir esta proposta?');
     if (!confirm) return;
 
