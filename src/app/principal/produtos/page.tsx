@@ -45,7 +45,7 @@ function CadProdutos() {
       </div>
 
       {isLoading && (
-        <div className="text-center py-4 text-lg text-gray-500 dark:text-gray-300">Carregando produtos...</div>
+        <div className="text-center py-4 text-lg text-gray-500 dark:text-gray-300">Carregando produtos....</div>
       )}
       
       {error && (
