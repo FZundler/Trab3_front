@@ -194,7 +194,7 @@ const Propostas = () => {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={5} className="text-center py-4">Carregando...</td>
+                <td colSpan={5} className="text-center py-4">Carregando....</td>
               </tr>
             ) : (
               propostas.map((proposta) => (
