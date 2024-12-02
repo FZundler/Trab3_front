@@ -32,20 +32,20 @@ function CadProdutos() {
   ))
 
   return (
-    <div className="m-4 mt-24">
+    <div className="m-4 mt-20">
       <div className="flex justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white ">
           Cadastro de Produto
         </h1>
         <Link href="produtos/novo" 
-          className="text-white bg-yellow-700 hover:bg-yellow-500 focus:ring-4 focus:ring-blue-300 
+          className="text-white  bg-yellow-700 hover:bg-yellow-500 focus:ring-4 focus:ring-blue-300 
           font-bold rounded-lg text-md px-6 py-2.5 dark:bg-yellow-600 dark:hover:bg-yellow-700 focus:outline-none dark:focus:ring-blue-800">
           Novo Produto
         </Link>
       </div>
 
       {isLoading && (
-        <div className="text-center py-4 text-lg text-gray-500 dark:text-gray-300">Carregando produtos....</div>
+        <div className="text-center py-4 text-lg text-gray-900 dark:text-gray-900">Carregando produtos....</div>
       )}
       
       {error && (
@@ -53,12 +53,12 @@ function CadProdutos() {
       )}
 
       {!isLoading && !error && produtos.length === 0 && (
-        <div className="text-center py-4 text-lg text-gray-500 dark:text-gray-300">Nenhum produto encontrado.</div>
+        <div className="text-center py-4 text-lg text-gray-900 dark:text-gray-900">Nenhum produto encontrado.</div>
       )}
 
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-100 dark:text-gray-100">
-          <thead className="text-xs text-gray-100 uppercase bg-gray-50 dark:bg-gray-500 dark:text-gray-100">
+      <div className="relative overflow-x-auto shadow-md sm:rounded-lg ">
+        <table className="w-full text-sm text-left rtl:text-right text-gray-100 dark:text-gray-900 ">
+          <thead className=" bg-transparent text-xs text-gray-900 uppercase bg-gray-50 dark:bg-transparent dark:text-gray-100">
             <tr>
               <th scope="col" className="px-6 py-3">Foto</th>
               <th scope="col" className="px-6 py-3">Modelo do Produto</th>

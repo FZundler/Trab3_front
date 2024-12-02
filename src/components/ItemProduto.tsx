@@ -1,67 +1,69 @@
 'use client'
+
 import { Dispatch, SetStateAction } from "react"
 import { TiDeleteOutline } from "react-icons/ti"
 import { FaRegStar } from "react-icons/fa"
 import Cookies from "js-cookie"
 import { ProdutoI } from "@/utils/types/produtos"
 
-interface listaProdutoProps {
-  produto: ProdutoI,
-  produtos: ProdutoI[],
-  setProdutos: Dispatch<SetStateAction<ProdutoI[]>>
+interface ListaProdutoProps {
+  produto: ProdutoI;
+  produtos: ProdutoI[];
+  setProdutos: Dispatch<SetStateAction<ProdutoI[]>>;
 }
 
-function ItemProduto({ produto, produtos, setProdutos }: listaProdutoProps) {
-
-  async function excluirProduto() {
-    if (confirm(`Confirma a exclusão`)) {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_URL_API}/produtos/${produto.id}`,
-        {
+const ItemProduto = ({ produto, produtos, setProdutos }: ListaProdutoProps) => {
+  // Função para excluir o produto
+  const excluirProduto = async () => {
+    if (confirm(`Confirma a exclusão do produto?`)) {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_URL_API}/produtos/${produto.id}`, {
           method: "DELETE",
           headers: {
             "Content-type": "application/json",
-            Authorization: "Bearer " + Cookies.get("admin_logado_token") as string
+            Authorization: `Bearer ${Cookies.get("admin_logado_token")}`,
           },
-        },
-      )
+        });
 
-      if (response.status == 200) {
-        const produtos2 = produtos.filter(x => x.id != produto.id)
-        setProdutos(produtos2)
-        alert("Produto excluído com sucesso")
-      } else {
-        alert("Erro... Produto não foi excluído")
+        if (response.ok) {
+          const updatedProdutos = produtos.filter((x) => x.id !== produto.id);
+          setProdutos(updatedProdutos);
+          alert("Produto excluído com sucesso");
+        } else {
+          alert("Erro... Produto não foi excluído");
+        }
+      } catch (error) {
+        alert("Erro ao excluir produto");
       }
     }
-  }
+  };
 
-  async function alterarDestaque() {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_URL_API}/produtos/destacar/${produto.id}`,
-      {
+  // Função para alterar o destaque do produto
+  const alterarDestaque = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL_API}/produtos/destacar/${produto.id}`, {
         method: "PUT",
         headers: {
           "Content-type": "application/json",
-          Authorization: "Bearer " + Cookies.get("admin_logado_token") as string
+          Authorization: `Bearer ${Cookies.get("admin_logado_token")}`,
         },
-      },
-    )
+      });
 
-    if (response.status == 200) {
-      const produtos2 = produtos.map(x => {
-        if (x.id == produto.id) {
-          return { ...x, destaque: !x.destaque }
-        }
-        return x
-      })
-      setProdutos(produtos2)
+      if (response.ok) {
+        const updatedProdutos = produtos.map((x) =>
+          x.id === produto.id ? { ...x, destaque: !x.destaque } : x
+        );
+        setProdutos(updatedProdutos);
+      }
+    } catch (error) {
+      alert("Erro ao alterar destaque do produto");
     }
-  }
+  };
 
   return (
-    <tr key={produto.id} className="odd:bg-white odd:dark:bg-transparent even:bg-gray-50 even:dark:bg-transparent border-b dark:border-gray-500">
-      <th scope="row" className="px-4 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-        <img src={produto.foto} alt="Produto"
-          style={{ width: 200 }} />
+    <tr key={produto.id} className="odd:bg-white even:bg-gray-50 border-b">
+      <th scope="row" className="px-4 py-4 font-medium text-gray-900">
+        <img src={produto.foto} alt="Produto" className="w-48" />
       </th>
       <td className={`px-6 py-4 ${produto.destaque ? "font-extrabold" : ""}`}>
         {produto.modelo}
@@ -76,13 +78,19 @@ function ItemProduto({ produto, produtos, setProdutos }: listaProdutoProps) {
         {Number(produto.preco).toLocaleString("pt-br", { minimumFractionDigits: 2 })}
       </td>
       <td className="px-6 py-4">
-        <TiDeleteOutline className="text-3xl text-red-500 inline-block cursor-pointer" title="Excluir"
-          onClick={excluirProduto} />&nbsp;
-        <FaRegStar className="text-3xl text-yellow-400 inline-block cursor-pointer" title="Destacar"
-          onClick={alterarDestaque} />
+        <TiDeleteOutline
+          className="text-3xl text-red-500 cursor-pointer"
+          title="Excluir"
+          onClick={excluirProduto}
+        />
+        <FaRegStar
+          className="text-3xl text-yellow-400 cursor-pointer"
+          title="Destacar"
+          onClick={alterarDestaque}
+        />
       </td>
     </tr>
-  )
-}
+  );
+};
 
-export default ItemProduto
+export default ItemProduto;
