@@ -1,7 +1,7 @@
-'use client'
-import Cookies from "js-cookie"
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+"use client";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Titulo } from "../../components/Titulo";
 import { MenuLateral } from "../../components/MenuLateral";
 
@@ -10,29 +10,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  const router = useRouter()
-  const [logado, setLogado] = useState<boolean>(false)
+  const router = useRouter();
+  const [logado, setLogado] = useState<boolean>(false);
 
   useEffect(() => {
     if (Cookies.get("admin_logado_id")) {
-      setLogado(true)
+      setLogado(true);
     } else {
-      router.replace("/")
+      router.replace("/");
     }
-  }, [])
+  }, []);
 
   return (
     <>
-      {logado &&
+      {logado && (
         <div>
           <Titulo />
           <MenuLateral />
-          <div className="p-4 sm:ml-64">
-            {children}
-          </div>
+          <div className="p-4 sm:ml-64">{children}</div>
         </div>
-      }
+      )}
     </>
-  )
+  );
 }

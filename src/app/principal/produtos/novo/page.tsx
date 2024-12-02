@@ -1,63 +1,60 @@
-'use client'
+"use client";
 
-import { useForm } from "react-hook-form"
-import Cookies from "js-cookie"
-import { toast } from "sonner"
-import { useState, useEffect } from "react"
-import { MarcaI } from "@/utils/types/marcas"
+import { useForm } from "react-hook-form";
+import Cookies from "js-cookie";
+import { toast } from "sonner";
+import { useState, useEffect } from "react";
+import { MarcaI } from "@/utils/types/marcas";
 
 type Inputs = {
-  modelo: string
-  marcaId: number
-  ano: number
-  preco: number
-  foto: string
-  acessorios: string
-}
+  modelo: string;
+  marcaId: number;
+  ano: number;
+  preco: number;
+  foto: string;
+  acessorios: string;
+};
 
 type ErrorData = {
-  message?: string
-}
+  message?: string;
+};
 
 function NovoProduto() {
-  const [marcas, setMarcas] = useState<MarcaI[]>([])
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setFocus
-  } = useForm<Inputs>()
+  const [marcas, setMarcas] = useState<MarcaI[]>([]);
+  const { register, handleSubmit, reset, setFocus } = useForm<Inputs>();
 
   useEffect(() => {
     async function getMarcas() {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_URL_API}/marcas`)
-      const dados = await response.json()
-      setMarcas(dados)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_URL_API}/marcas`);
+      const dados = await response.json();
+      setMarcas(dados);
     }
-    getMarcas()
+    getMarcas();
 
     setTimeout(() => {
-      setFocus("modelo")
-    }, 0)
-  }, [])
+      setFocus("modelo");
+    }, 0);
+  }, []);
 
-  const optionsMarca = marcas.map(marca => (
-    <option key={marca.id} value={marca.id}>{marca.nome}</option>
-  ))
+  const optionsMarca = marcas.map((marca) => (
+    <option key={marca.id} value={marca.id}>
+      {marca.nome}
+    </option>
+  ));
 
   const isValidUrl = (url: string) => {
     try {
-      new URL(url)
-      return true
+      new URL(url);
+      return true;
     } catch {
-      return false
+      return false;
     }
-  }
+  };
 
   async function incluirProduto(data: Inputs) {
     if (!data.foto || !isValidUrl(data.foto)) {
-      toast.error("A URL da foto não é válida.")
-      return
+      toast.error("A URL da foto não é válida.");
+      return;
     }
 
     const novoProduto: Inputs = {
@@ -67,37 +64,44 @@ function NovoProduto() {
       acessorios: data.acessorios,
       foto: data.foto,
       preco: data.preco,
-    }
+    };
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_URL_API}/produtos`, {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: "Bearer " + Cookies.get("admin_logado_token") as string
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_URL_API}/produtos`,
+        {
+          method: "POST",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: ("Bearer " +
+              Cookies.get("admin_logado_token")) as string,
+          },
+          body: JSON.stringify(novoProduto),
         },
-        body: JSON.stringify(novoProduto)
-      })
+      );
 
       if (response.ok) {
-        toast.success("Produto cadastrado com sucesso")
-        reset()
+        toast.success("Produto cadastrado com sucesso");
+        reset();
       } else {
-        console.error("Erro ao cadastrar o produto. Status:", response.status)
+        console.error("Erro ao cadastrar o produto. Status:", response.status);
 
-        let errorData: ErrorData = {}
+        let errorData: ErrorData = {};
         try {
-          errorData = await response.json()
+          errorData = await response.json();
         } catch (err) {
-          console.error("Erro ao tentar ler o corpo da resposta:", err)
+          console.error("Erro ao tentar ler o corpo da resposta:", err);
         }
 
-        console.error("Erro detalhado:", errorData)
-        toast.error(errorData.message || `Erro ao cadastrar o produto. Status: ${response.status}`)
+        console.error("Erro detalhado:", errorData);
+        toast.error(
+          errorData.message ||
+            `Erro ao cadastrar o produto. Status: ${response.status}`,
+        );
       }
     } catch (error) {
-      console.error("Erro de rede ou de requisição:", error)
-      toast.error("Erro de rede ou de requisição. Tente novamente.")
+      console.error("Erro de rede ou de requisição:", error);
+      toast.error("Erro de rede ou de requisição. Tente novamente.");
     }
   }
 
@@ -107,22 +111,33 @@ function NovoProduto() {
         Inclusão de Produtos
       </h1>
 
-      <form className="max-w-lg mx-auto" onSubmit={handleSubmit(incluirProduto)}>
+      <form
+        className="max-w-lg mx-auto"
+        onSubmit={handleSubmit(incluirProduto)}
+      >
         <div className="mb-4">
-          <label htmlFor="modelo" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          <label
+            htmlFor="modelo"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
             Modelo do Produto
           </label>
           <input
-            type="text" id="modelo"
+            type="text"
+            id="modelo"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
              focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-500 dark:border-gray-600
-             dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required
+             dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            required
             {...register("modelo")}
           />
         </div>
         <div className="grid gap-6 mb-3 md:grid-cols-2">
           <div className="mb-3">
-            <label htmlFor="marcaId" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label
+              htmlFor="marcaId"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >
               Marca
             </label>
             <select
@@ -130,59 +145,79 @@ function NovoProduto() {
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-500
                dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500
-               dark:focus:border-blue-500" required
+               dark:focus:border-blue-500"
+              required
               {...register("marcaId", { valueAsNumber: true })}
             >
               {optionsMarca}
             </select>
           </div>
           <div className="mb-3">
-            <label htmlFor="ano" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label
+              htmlFor="ano"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >
               Ano
             </label>
             <input
-              type="number" id="ano"
+              type="number"
+              id="ano"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-             focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required
+             focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              required
               {...register("ano")}
             />
           </div>
         </div>
         <div className="grid gap-6 mb-3 md:grid-cols-2">
           <div className="mb-3">
-            <label htmlFor="preco" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label
+              htmlFor="preco"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >
               Preço R$
             </label>
             <input
-              type="number" id="preco"
+              type="number"
+              id="preco"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
-               dark:bg-gray-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required
+               dark:bg-gray-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              required
               {...register("preco")}
             />
           </div>
         </div>
         <div className="grid gap-6 mb-3 md:grid-cols-2">
           <div className="mb-3">
-            <label htmlFor="foto" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label
+              htmlFor="foto"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >
               URL da Foto
             </label>
             <input
-              type="text" id="foto"
+              type="text"
+              id="foto"
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
                focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
                dark:bg-gray-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white
-               dark:focus:ring-blue-500 dark:focus:border-blue-500" required
+               dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              required
               {...register("foto")}
             />
           </div>
         </div>
         <div className="mb-3">
-          <label htmlFor="acessorios" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          <label
+            htmlFor="acessorios"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          >
             Acessórios
           </label>
           <textarea
-            id="acessorios" rows={4}
+            id="acessorios"
+            rows={4}
             className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border
              border-gray-300 focus:ring-blue-500 focus:border-blue-500
              dark:bg-gray-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white
@@ -201,7 +236,7 @@ function NovoProduto() {
         </button>
       </form>
     </>
-  )
+  );
 }
 
-export default NovoProduto
+export default NovoProduto;
