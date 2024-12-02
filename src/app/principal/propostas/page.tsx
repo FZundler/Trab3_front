@@ -23,8 +23,12 @@ const Propostas = () => {
       if (!response.ok)
         throw new Error(data.message || "Erro ao buscar propostas");
       setPropostas(data);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Erro desconhecido");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -53,8 +57,12 @@ const Propostas = () => {
         throw new Error(data.message || "Falha ao enviar proposta");
       alert("Proposta enviada com sucesso!");
       setPropostas((prev) => [data, ...prev]);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Erro desconhecido");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -184,7 +192,7 @@ const Propostas = () => {
                   <td className="px-6 py-3">{proposta.descricao}</td>
                   <td className="px-6 py-3">
                     <button
-                      onClick={() => alert("Excluindo proposta")} // Implementar a exclusão de propostas
+                      onClick={() => alert("Excluindo proposta")}
                       className="text-red-600 hover:text-red-800"
                     >
                       Excluir

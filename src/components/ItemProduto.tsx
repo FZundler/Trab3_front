@@ -35,7 +35,7 @@ const ItemProduto = ({ produto, produtos, setProdutos }: ListaProdutoProps) => {
         } else {
           alert("Erro... Produto não foi excluído");
         }
-      } catch (error) {
+      } catch {
         alert("Erro ao excluir produto");
       }
     }
@@ -61,7 +61,7 @@ const ItemProduto = ({ produto, produtos, setProdutos }: ListaProdutoProps) => {
         );
         setProdutos(updatedProdutos);
       }
-    } catch (error) {
+    } catch {
       alert("Erro ao alterar destaque do produto");
     }
   };
