@@ -34,40 +34,6 @@ const Propostas = () => {
     }
   };
 
-  const submitProposta = async () => {
-    if (!produtoId || !preco || !descricao) {
-      alert("Por favor, preencha todos os campos corretamente!");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_URL_API}/propostas`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ produtoId, preco, descricao }),
-        },
-      );
-
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Falha ao enviar proposta");
-      alert("Proposta enviada com sucesso!");
-      setPropostas((prev) => [data, ...prev]);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Erro desconhecido");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     fetchPropostas();
   }, []);
@@ -77,76 +43,6 @@ const Propostas = () => {
       <h1 className="mb-8 text-3xl font-extrabold text-gray-100">
         Controle de Propostas 👨🏻‍💻
       </h1>
-      <div className="bg-gray-500/20 p-6 rounded-lg shadow-lg mb-8">
-        <h2 className="text-2xl font-semibold text-gray-100 mb-4">
-          Submeter Nova Proposta
-        </h2>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            submitProposta();
-          }}
-          className="space-y-4"
-        >
-          <div>
-            <label
-              htmlFor="produtoId"
-              className="block text-lg font-medium text-white"
-            >
-              ID do Produto
-            </label>
-            <input
-              type="text"
-              id="produtoId"
-              value={produtoId}
-              onChange={(e) => setProdutoId(e.target.value)}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-md"
-              required
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="preco"
-              className="block text-lg font-medium text-white"
-            >
-              Preço
-            </label>
-            <input
-              type="number"
-              id="preco"
-              value={preco}
-              onChange={(e) => setPreco(Number(e.target.value))}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-md"
-              required
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="descricao"
-              className="block text-lg font-medium text-white"
-            >
-              Descrição
-            </label>
-            <textarea
-              id="descricao"
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-              className="w-full p-3 mt-2 border border-gray-300 rounded-md"
-              required
-            />
-          </div>
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              className={`px-6 py-3 mt-4 bg-blue-600 text-white font-semibold rounded-lg ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
-              disabled={isLoading}
-            >
-              {isLoading ? "Enviando..." : "Enviar Proposta"}
-            </button>
-          </div>
-        </form>
-        {error && <p className="text-red-500 mt-2">{error}</p>}
-      </div>
 
       <h3 className="text-2xl font-semibold text-white mb-4">
         Propostas Enviadas
