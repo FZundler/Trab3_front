@@ -1,120 +1,141 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { PropostaI } from "@/utils/types/propostas";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
+interface Proposta {
+  id: string;
+  descricao: string;
+  produto: { nome: string; imagemUrl: string };
+  cliente: { nome: string; email: string };
+  resposta?: string;
+}
+
 const Propostas = () => {
-  const [propostas, setPropostas] = useState<PropostaI[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [propostas, setPropostas] = useState<Proposta[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Função para buscar as propostas
-  const fetchPropostas = async () => {
-    setIsLoading(true);
-    setError(null); // Limpa o erro anterior
-
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_URL_API}/propostas/1`,
-      );
-
-      // Verifica se a resposta foi bem-sucedida
-      if (!response.ok) {
-        throw new Error("Erro ao buscar propostas");
-      }
-
-      const data = await response.json();
-      setPropostas(data); // Atualiza o estado com as propostas
-    } catch (err: unknown) {
-      // Se ocorrer um erro, define a mensagem de erro
-      setError(err instanceof Error ? err.message : "Erro desconhecido");
-    } finally {
-      setIsLoading(false); // Finaliza o carregamento
-    }
-  };
-
-  // Chama a função de busca assim que o componente for montado
+  // Função para buscar as propostas da API
   useEffect(() => {
+    const fetchPropostas = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_URL_API}/propostas`,
+        );
+
+        if (!response.ok) {
+          throw new Error("Falha ao carregar propostas");
+        }
+
+        const data: Proposta[] = await response.json();
+        setPropostas(data);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError("Erro ao buscar as propostas: " + err.message);
+        } else {
+          setError("Erro desconhecido ao buscar as propostas");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchPropostas();
   }, []);
 
+  // Função para excluir a proposta tanto da lista local quanto da API
+  const excluirProposta = async (id: string) => {
+    try {
+      // Enviar a requisição DELETE para o backend
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_URL_API}/propostas/${id}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      // Verificar se a resposta foi bem-sucedida
+      if (!response.ok) {
+        throw new Error("Erro ao excluir proposta no backend");
+      }
+
+      // Remove a proposta da lista local após exclusão bem-sucedida
+      setPropostas((prevPropostas) =>
+        prevPropostas.filter((proposta) => proposta.id !== id),
+      );
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError("Erro ao excluir proposta: " + err.message);
+      } else {
+        setError("Erro desconhecido ao excluir proposta");
+      }
+    }
+  };
+
   return (
-    <section className="max-w-7xl mx-auto py-6">
-      <h1 className="mb-8 text-3xl font-extrabold text-gray-100">
-        Controle de Propostas 👨🏻‍💻
-      </h1>
+    <div style={{ backgroundColor: "black", color: "white", padding: "20px" }}>
+      <h1>Propostas</h1>
+      {loading && <p>Carregando propostas...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {/* Exibe erro, se houver */}
-      {error && <p className="text-red-600">{error}</p>}
-
-      <h3 className="text-2xl font-semibold text-white mb-4">
-        Propostas Enviadas
-      </h3>
-
-      <div>
-        {/* Tabela de Propostas */}
-        <table className="w-full table-auto">
+      {!loading && !error && propostas.length > 0 && (
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th className="px-6 py-3 text-left text-xl font-semibold text-white">
-                Produto
-              </th>
-              <th className="px-6 py-3 text-left text-xl font-semibold text-white">
-                Foto
-              </th>
-              <th className="px-6 py-3 text-left text-xl font-semibold text-white">
-                Descrição
-              </th>
-              <th className="px-6 py-3 text-left text-xl font-semibold text-white">
-                Ações
-              </th>
+              <th>Produto</th>
+              <th>Foto</th>
+              <th>Descrição</th>
+              <th>Cliente</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {/* Verifica se está carregando */}
-            {isLoading ? (
-              <tr>
-                <td colSpan={4} className="text-center py-4">
-                  Carregando....
+            {propostas.map((proposta) => (
+              <tr key={proposta.id}>
+                <td>{proposta.produto.nome}</td>
+                <td>
+                  <Image
+                    src={
+                      proposta.produto.imagemUrl ||
+                      "https://via.placeholder.com/180"
+                    }
+                    alt={`Imagem do produto ${proposta.produto.nome}`}
+                    width={180}
+                    height={180}
+                    style={{ borderRadius: "8px" }}
+                  />
+                </td>
+                <td>{proposta.descricao}</td>
+                <td>{proposta.cliente.nome}</td>
+                <td>
+                  <button
+                    onClick={() => excluirProposta(proposta.id)}
+                    style={{
+                      backgroundColor: "#f44336",
+                      color: "white",
+                      border: "none",
+                      padding: "8px 16px",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Excluir
+                  </button>
                 </td>
               </tr>
-            ) : // Exibe as propostas retornadas da API
-            propostas.length > 0 ? (
-              propostas.map((proposta) => (
-                <tr key={proposta.id} className="hover:bg-gray-100">
-                  <td className="px-6 py-3">{proposta.produtoId}</td>
-                  <td className="px-6 py-3">
-                    <Image
-                      src={`https://via.placeholder.com/150?text=Imagem+${proposta.produtoId}`}
-                      alt={`Imagem do produto ${proposta.produtoId}`}
-                      width={50}
-                      height={50}
-                      className="rounded-md"
-                    />
-                  </td>
-                  <td className="px-6 py-3">{proposta.descricao}</td>
-                  <td className="px-6 py-3">
-                    <button
-                      onClick={() => alert("Excluindo proposta")}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} className="text-center py-4 text-white">
-                  Nenhuma proposta encontrada.
-                </td>
-              </tr>
-            )}
+            ))}
           </tbody>
         </table>
-      </div>
-    </section>
+      )}
+
+      {!loading && !error && propostas.length === 0 && (
+        <p>Nenhuma proposta encontrada.</p>
+      )}
+    </div>
   );
 };
 

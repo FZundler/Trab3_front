@@ -9,9 +9,7 @@
     "plugin:react/recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier",
-    "plugin:prettier/recommended",
-    "next",
-    "next/core-web-vitals"
+    "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -21,14 +19,13 @@
       "jsx": true
     }
   },
-  "plugins": ["react", "@typescript-eslint", "prettier", "next"],
+  "plugins": ["react", "@typescript-eslint", "prettier"],
   "rules": {
     "prettier/prettier": "error",
     "react/prop-types": "off",
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "off",
-    "react/react-in-jsx-scope": "off",
-    "next/no-img-element": "warn"
+    "react/react-in-jsx-scope": "off"
   },
   "settings": {
     "react": {
