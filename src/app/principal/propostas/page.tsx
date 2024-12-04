@@ -6,34 +6,35 @@ import Image from "next/image";
 
 const Propostas = () => {
   const [propostas, setPropostas] = useState<PropostaI[]>([]);
-  const [preco, setPreco] = useState<number>(0);
-  const [descricao, setDescricao] = useState<string>("");
-  const [produtoId, setProdutoId] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Função para buscar as propostas
   const fetchPropostas = async () => {
     setIsLoading(true);
-    setError(null);
+    setError(null); // Limpa o erro anterior
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_URL_API}/propostas/1`,
       );
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(data.message || "Erro ao buscar propostas");
-      setPropostas(data);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Erro desconhecido");
+
+      // Verifica se a resposta foi bem-sucedida
+      if (!response.ok) {
+        throw new Error("Erro ao buscar propostas");
       }
+
+      const data = await response.json();
+      setPropostas(data); // Atualiza o estado com as propostas
+    } catch (err: unknown) {
+      // Se ocorrer um erro, define a mensagem de erro
+      setError(err instanceof Error ? err.message : "Erro desconhecido");
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Finaliza o carregamento
     }
   };
 
+  // Chama a função de busca assim que o componente for montado
   useEffect(() => {
     fetchPropostas();
   }, []);
@@ -44,10 +45,15 @@ const Propostas = () => {
         Controle de Propostas 👨🏻‍💻
       </h1>
 
+      {/* Exibe erro, se houver */}
+      {error && <p className="text-red-600">{error}</p>}
+
       <h3 className="text-2xl font-semibold text-white mb-4">
         Propostas Enviadas
       </h3>
+
       <div>
+        {/* Tabela de Propostas */}
         <table className="w-full table-auto">
           <thead>
             <tr>
@@ -66,13 +72,15 @@ const Propostas = () => {
             </tr>
           </thead>
           <tbody>
+            {/* Verifica se está carregando */}
             {isLoading ? (
               <tr>
                 <td colSpan={4} className="text-center py-4">
                   Carregando....
                 </td>
               </tr>
-            ) : (
+            ) : // Exibe as propostas retornadas da API
+            propostas.length > 0 ? (
               propostas.map((proposta) => (
                 <tr key={proposta.id} className="hover:bg-gray-100">
                   <td className="px-6 py-3">{proposta.produtoId}</td>
@@ -96,6 +104,12 @@ const Propostas = () => {
                   </td>
                 </tr>
               ))
+            ) : (
+              <tr>
+                <td colSpan={4} className="text-center py-4 text-white">
+                  Nenhuma proposta encontrada.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
