@@ -98,7 +98,7 @@ const Propostas = () => {
               <tr key={proposta.id}>
                 <td>{proposta.produto.nome}</td>
                 <td>
-                  <Image
+                  <img
                     src={
                       proposta.produto.imagemUrl ||
                       "https://via.placeholder.com/180"
